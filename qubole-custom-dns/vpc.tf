@@ -1,8 +1,3 @@
-resource "aws_key_pair" "deployment-key" {
-  key_name = "${var.deployment_key_name}"
-  public_key = "${var.deployment_pub_key}"
-}
-
 resource "aws_vpc" "qubole-vpc-customdns" {
     cidr_block = "${var.vpc_cidr}"
     enable_dns_hostnames = true
