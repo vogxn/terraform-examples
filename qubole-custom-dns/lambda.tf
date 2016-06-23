@@ -17,7 +17,7 @@ resource "aws_lambda_function" "lambda-cw-resolver-fn" {
 resource "aws_lambda_permission" "allow_cloudwatch" {
     statement_id = "AllowExecutionFromCloudWatch"
     action = "lambda:InvokeFunction"
-    function_name = "${aws_lambda_function.lambda-cw-resolver-fn.name}"
+    function_name = "${aws_lambda_function.lambda-cw-resolver-fn.arn}"
     principal = "events.amazonaws.com"
     source_arn = "${aws_cloudwatch_event_rule.ec2_lambda_ddns_rule.arn}"
 }
