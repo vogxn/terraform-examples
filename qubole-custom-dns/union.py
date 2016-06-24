@@ -164,7 +164,7 @@ def lambda_handler(event, context):
             # This will also check to see whether there's an association between the instance's VPC and the
             # private hosted zone.  If there isn't, it will create it.
             for configuration in dhcp_configurations:
-                if configuration[0] in private_hosted_zone_collection:
+                if configuration[0].replace("ec2.internal","").strip() in private_hosted_zone_collection:
                     private_hosted_zone_name = configuration[0]
                     print 'Private zone found %s' % private_hosted_zone_name
                     # TODO need a way to prevent overlapping subdomains
