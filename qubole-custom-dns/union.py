@@ -312,6 +312,7 @@ def get_dhcp_configurations(dhcp_options_id):
     zone_names = []
     dhcp_options = ec2.DhcpOptions(dhcp_options_id)
     dhcp_configurations = dhcp_options.dhcp_configurations
+    print 'DHCP configurations for DHCP option %s is %s' % (dhcp_options_id, dhcp_configurations)
     for configuration in dhcp_configurations:
         zone_names.append(map(lambda x: x['Value'], configuration['Values']))
     return zone_names
