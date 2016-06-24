@@ -64,10 +64,6 @@ def lambda_handler(event, context):
     # Get instance attributes
     private_ip = instance['Reservations'][0]['Instances'][0]['PrivateIpAddress']
     private_dns_name = instance['Reservations'][0]['Instances'][0]['PrivateDnsName']
-    try:
-        public_dns_name = instance['Reservations'][0]['Instances'][0]['PublicDnsName']
-    except BaseException as e:
-        print 'Instance has no public IP or host name', e
 
     # Get the subnet mask of the instance
     subnet_id = instance['Reservations'][0]['Instances'][0]['SubnetId']
@@ -91,16 +87,19 @@ def lambda_handler(event, context):
     if is_dns_hostnames_enabled(vpc):
         print 'DNS hostnames enabled for %s' % vpc_id
     else:
-        print 'DNS hostnames disabled for %s.  You have to enable DNS hostnames to use Route 53 private hosted zones.' % vpc_id
+        print 'DNS hostnames disabled for %s.  You have to enable DNS hostnames to' \
+              ' use Route 53 private hosted zones.' % vpc_id
     if is_dns_support_enabled(vpc):
         print 'DNS support enabled for %s' % vpc_id
     else:
-        print 'DNS support disabled for %s.  You have to enabled DNS support to use Route 53 private hosted zones.' % vpc_id
+        print 'DNS support disabled for %s.  You have to enabled DNS support to use' \
+              ' Route 53 private hosted zones.' % vpc_id
 
     # Create the public and private hosted zone collections.  These are collections of zones in Route 53.
     hosted_zones = route53.list_hosted_zones()
     private_hosted_zones = filter(lambda x: x['Config']['PrivateZone'] is True, hosted_zones['HostedZones'])
     private_hosted_zone_collection = map(lambda x: x['Name'], private_hosted_zones)
+    print 'Private Hosted Zones: %s' % private_hosted_zone_collection
     # Check to see whether a reverse lookup zone for the instance already exists.  If it does, check to see whether
     # the reverse lookup zone is associated with the instance's VPC.  If it isn't create the association. You don't
     # need to do this when you create the reverse lookup zone because the association is done automatically.
@@ -164,8 +163,10 @@ def lambda_handler(event, context):
             # This will also check to see whether there's an association between the instance's VPC and the
             # private hosted zone.  If there isn't, it will create it.
             for configuration in dhcp_configurations:
-                # remove ec2.internal search domain as we do not manage it
-                configuration[0] = configuration[0].replace("ec2.internal", "").strip()
+                # remove ec2.internal/compute.internal search domain as we do not manage it
+                configuration[0] = filter(lambda domain: domain not in ["ec2.internal", "compute.internal"],
+                                          configuration[0])
+                print 'DHCP configuration found %s' % configuration
                 if configuration[0] in private_hosted_zone_collection:
                     private_hosted_zone_name = configuration[0]
                     print 'Private zone found %s' % private_hosted_zone_name
@@ -312,7 +313,7 @@ def get_dhcp_configurations(dhcp_options_id):
     dhcp_options = ec2.DhcpOptions(dhcp_options_id)
     dhcp_configurations = dhcp_options.dhcp_configurations
     for configuration in dhcp_configurations:
-        zone_names.append(map(lambda x: x['Value'] + '.', configuration['Values']))
+        zone_names.append(map(lambda x: x['Value'], configuration['Values']))
     return zone_names
 
 
