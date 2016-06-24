@@ -2,6 +2,7 @@
 
 resource "aws_route53_zone" "qubole-dns" {
   name = "qubole-dns.net"
+  comment = "Qubole Custom DNS Zone"
   vpc_id = "${aws_vpc.qubole-vpc-customdns.id}"
 }
 

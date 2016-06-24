@@ -6,6 +6,8 @@ import time
 import random
 from datetime import datetime
 
+
+# The log records from print stmts are found in the Lambda AWS console
 print('Loading function ' + datetime.now().time().isoformat())
 route53 = boto3.client('route53')
 ec2 = boto3.resource('ec2')
@@ -408,7 +410,7 @@ def create_reverse_lookup_zone(instance, reversed_domain_prefix, region):
         },
         CallerReference=str(uuid.uuid1()),
         HostedZoneConfig={
-            'Comment': 'Updated by Lambda DDNS',
+            'Comment': 'Updated by Qubole Lambda DDNS',
         },
     )
 
