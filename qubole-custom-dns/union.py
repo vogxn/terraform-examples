@@ -138,11 +138,11 @@ def lambda_handler(event, context):
 
     # Use the instance id eg: i-182nadsf to form the DNS name of the private zone A record
     # So i-182nadsf becomes "qbol-cl312-182nadsf.qubole-dns.net" where cl312 is the cluster id
-    # The 'Qubole' tag contains the cluster id as @sc-qbol-acc123-cl312
+    # The 'Qubole' tag contains the cluster id as qbol_acc123_cl312
     for tag in tags:
       if 'Qubole' in tag.get('Key',{}).lstrip().upper():
         cname = tag.get('Value').lstrip().lower() # cname is cluster name
-        cluster_id = tag.split('-')[-1]
+        cluster_id = tag.split('_')[-1]
         instance_suffix = instance_id.split('-')[-1]
         cname_host_name = "-".join(["qbol", cluster_id, instance_suffix])
         cname_domain_suffix_id = get_zone_id(CNAME_DOMAIN_SUFFIX)
