@@ -118,12 +118,13 @@ def lambda_handler(event, context):
                 print e
     else:
         print 'No matching reverse lookup zone'
-    # create private hosted zone for reverse lookups
-    if state == 'running':
-        create_reverse_lookup_zone(instance, reversed_domain_prefix, region)
-        # Wait a random amount of time.  This is a poor-mans back-off if a lot of instances are launched all at once.
-        reverse_lookup_zone_id = get_zone_id(reversed_lookup_zone)
-        time.sleep(random.random())
+        # create private hosted zone for reverse lookups
+        if state == 'running':
+            create_reverse_lookup_zone(instance, reversed_domain_prefix, region)
+            # Wait a random amount of time.  This is a poor-mans back-off if a lot of
+            # instances are launched all at once.
+            reverse_lookup_zone_id = get_zone_id(reversed_lookup_zone)
+            time.sleep(random.random())
 
     # Use the instance id eg: i-182nadsf to form the DNS name of the private zone A record
     # So i-182nadsf becomes "qbol-cl312-182nadsf.qubole-dns.net" where cl312 is the cluster id
