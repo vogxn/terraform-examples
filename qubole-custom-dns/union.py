@@ -131,7 +131,7 @@ def lambda_handler(event, context):
     # The 'Qubole' tag contains the cluster id as qbol_acc123_cl312
     for tag in tags:
         if 'QUBOLE' in tag.get('Key', {}).lstrip().upper():
-            cluster_id = tag.split('_')[-1]
+            cluster_id = tag.get('Value').lstrip().lower().split('_')[-1]
             instance_suffix = instance_id.split('-')[-1]
             cname_host_name = "-".join(["qbol", cluster_id, instance_suffix])
             cname_domain_suffix_id = get_zone_id(CNAME_DOMAIN_SUFFIX)
