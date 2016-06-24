@@ -312,11 +312,11 @@ def get_search_domains(dhcp_options_id):
     print 'DHCP configurations for DHCP option %s is %s' % (dhcp_options_id, dhcp_configurations)
     for configuration in dhcp_configurations:
         if configuration['Key'] == 'domain-name':
-            dns_domains = map(lambda x: x['Value'] + '.', configuration['Values']).split()
-            print 'Initial domains list: %s' % dns_domains
-            dns_domains = list(set(dns_domains).difference(['ec2.internal.', 'compute.internal.']))
+            dns_domains = map(lambda x: x['Value'], configuration['Values']).pop().split()
+            dns_domains = list(set(dns_domains).difference(['ec2.internal', 'compute.internal']))
             print 'Filtered domains list: %s' % dns_domains
-            zone_names.extend(dns_domains)
+            zone_names.extend(map(lambda dom: dom + '.', dns_domains))
+            print 'Interned zone names %s' % zone_names
     return zone_names
 
 
