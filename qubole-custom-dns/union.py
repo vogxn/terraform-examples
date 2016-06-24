@@ -72,8 +72,8 @@ def lambda_handler(event, context):
     private_host_name = private_dns_name.split('.')[0]
     try:
       public_ip = instance['Reservations'][0]['Instances'][0]['PublicIpAddress']
-        public_dns_name = instance['Reservations'][0]['Instances'][0]['PublicDnsName']
-        public_host_name = public_dns_name.split('.')[0]
+      public_dns_name = instance['Reservations'][0]['Instances'][0]['PublicDnsName']
+      public_host_name = public_dns_name.split('.')[0]
     except BaseException as e:
       print 'Instance has no public IP or host name', e
 
