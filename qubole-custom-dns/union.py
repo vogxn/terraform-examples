@@ -164,8 +164,8 @@ def lambda_handler(event, context):
             # private hosted zone.  If there isn't, it will create it.
             for configuration in dhcp_configurations:
                 # remove ec2.internal/compute.internal search domain as we do not manage it
-                configuration[0] = filter(lambda domain: domain not in ["ec2.internal", "compute.internal"],
-                                          configuration[0])
+                configuration = [filter(lambda domain: domain not in ["ec2.internal", "compute.internal"], c.split())
+                                 for c in configuration]
                 print 'DHCP configuration found %s' % configuration
                 if configuration[0] in private_hosted_zone_collection:
                     private_hosted_zone_name = configuration[0]
