@@ -182,7 +182,7 @@ def lambda_handler(event, context):
                                 print 'You cannot create an association with a VPC with an overlapping subdomain.\n', e
                                 exit()
                         try:
-                            create_resource_record(private_hosted_zone_id, cname_host_name, private_hosted_zone_name,
+                            create_resource_record(private_hosted_zone_id, private_dns_name, private_hosted_zone_name,
                                                    'A', private_ip)
                             create_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR',
                                                    ".".join([cname_host_name, private_hosted_zone_name]))
@@ -190,7 +190,7 @@ def lambda_handler(event, context):
                             print e
                     else:
                         try:
-                            delete_resource_record(private_hosted_zone_id, cname_host_name, private_hosted_zone_name,
+                            delete_resource_record(private_hosted_zone_id, private_dns_name, private_hosted_zone_name,
                                                    'A', private_ip)
                             delete_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR',
                                                    ".".join([cname_host_name, private_hosted_zone_name]))
