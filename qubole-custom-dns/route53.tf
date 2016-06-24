@@ -8,7 +8,7 @@ resource "aws_route53_zone" "qubole-dns" {
 
 /* DHCP Options */
 resource "aws_vpc_dhcp_options" "qubole_custom_dhcp" {
-  domain_name = "qubole-dns.net"
+  domain_name = "qubole-dns.net ec2.internal"
   domain_name_servers = ["AmazonProvidedDNS"]
 }
 
