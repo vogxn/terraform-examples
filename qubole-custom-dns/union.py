@@ -154,7 +154,7 @@ def lambda_handler(event, context):
             # Get DHCP option set configuration
             try:
                 dhcp_options_id = vpc.dhcp_options_id
-                dhcp_configurations = get_dhcp_configurations(dhcp_options_id)
+                domains = get_search_domains(dhcp_options_id)
             except BaseException as e:
                 print 'No DHCP option set assigned to this VPC\n', e
                 exit()
@@ -162,15 +162,12 @@ def lambda_handler(event, context):
             # the domain name to create resource records in the appropriate Route 53 private hosted zone.
             # This will also check to see whether there's an association between the instance's VPC and the
             # private hosted zone.  If there isn't, it will create it.
-            for configuration in dhcp_configurations:
-                # remove ec2.internal/compute.internal search domain as we do not manage it
-                configuration = filter(lambda domain: domain not in ["ec2.internal", "compute.internal"],
-                                       configuration[0].split())
-                print 'DHCP configuration found %s' % configuration
-                if configuration[0] in private_hosted_zone_collection:
-                    private_hosted_zone_name = configuration[0]
-                    print 'Private zone found %s' % private_hosted_zone_name
+            for domain in domains:
+                print 'DHCP search domain found %s' % domain
+                if domain in private_hosted_zone_collection:
                     # TODO need a way to prevent overlapping subdomains
+                    private_hosted_zone_name = domain
+                    print 'Private zone found %s' % private_hosted_zone_name
                     private_hosted_zone_id = get_zone_id(private_hosted_zone_name)
                     private_hosted_zone_properties = get_hosted_zone_properties(private_hosted_zone_id)
                     # create A records and PTR records
@@ -200,7 +197,7 @@ def lambda_handler(event, context):
                         except BaseException as e:
                             print e
                 else:
-                    print 'No matching zone for %s' % configuration[0]
+                    print 'No matching zone for %s' % domain[0]
 
 
 def create_table(table_name):
@@ -307,21 +304,24 @@ def is_valid_hostname(hostname):
     return all(allowed.match(x) for x in hostname.split("."))
 
 
-def get_dhcp_configurations(dhcp_options_id):
+def get_search_domains(dhcp_options_id):
     """This function returns the names of the zones/domains that are in the option set."""
     zone_names = []
     dhcp_options = ec2.DhcpOptions(dhcp_options_id)
     dhcp_configurations = dhcp_options.dhcp_configurations
     print 'DHCP configurations for DHCP option %s is %s' % (dhcp_options_id, dhcp_configurations)
     for configuration in dhcp_configurations:
-        zone_names.append(map(lambda x: x['Value'], configuration['Values']))
+        if configuration['Key'] == 'domain-name':
+            dns_domains = map(lambda x: x['Value'], configuration['Values'])
+            dns_domains = list(set(dns_domains).difference(['ec2.internal', 'compute.internal']))
+            zone_names.extend(dns_domains)
     return zone_names
 
 
 def reverse_list(list):
     """Reverses the order of the instance's IP address and helps construct the reverse lookup zone name."""
     if (re.search('\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}', list)) or (re.search('\d{1,3}.\d{1,3}.\d{1,3}\.', list)) or (
-    re.search('\d{1,3}.\d{1,3}\.', list)) or (re.search('\d{1,3}\.', list)):
+            re.search('\d{1,3}.\d{1,3}\.', list)) or (re.search('\d{1,3}\.', list)):
         list = str.split(str(list), '.')
         list = filter(None, list)
         list.reverse()
