@@ -4,7 +4,7 @@
 
 resource "aws_instance" "bastion_node" {
     ami = "${lookup(var.amis, var.aws_region)}"
-    instance_type = "m3.medium"
+    instance_type = "t1.micro"
     key_name = "${aws_key_pair.deployment-key.key_name}"
     security_groups = ["${aws_security_group.bastion-security.id}"]
     subnet_id = "${aws_subnet.vpc-multitier-public.id}"

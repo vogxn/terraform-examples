@@ -124,22 +124,3 @@ resource "aws_security_group" "bastion-security" {
   }
 }
 
-resource "aws_security_group" "private-subnet-security" {
-  name = "private-subnet-security"
-  description = "security group for instances in private subnet"
-  vpc_id = "${aws_vpc.multitier.id}"
-
-  ingress {
-      from_port = 0
-      to_port = 0
-      protocol = "-1"
-      security_groups = ["${aws_security_group.bastion-security.id}"]
-  }
-
-  egress {
-      from_port = 0
-      to_port = 0
-      protocol = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-  }
-}
